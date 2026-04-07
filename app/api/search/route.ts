@@ -10,7 +10,7 @@ export async function GET(request: Request) {
   }
 
   try {
-    const result = await searchAlbums(q, 24)
+    const result = await searchAlbums(q, 10)
     return NextResponse.json({ albums: result.albums?.items ?? [] })
   } catch (err) {
     console.error('[/api/search] Spotify error:', err)

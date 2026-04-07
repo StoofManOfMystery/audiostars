@@ -54,8 +54,10 @@ async function spotifyFetch<T>(
   options: RequestInit = {}
 ): Promise<T> {
   const token = await getClientCredentialsToken()
+  const url = `${SPOTIFY_API_BASE}${endpoint}`
+  console.log('[spotify] GET', url)
 
-  const response = await fetch(`${SPOTIFY_API_BASE}${endpoint}`, {
+  const response = await fetch(url, {
     ...options,
     headers: {
       Authorization: `Bearer ${token}`,
@@ -65,6 +67,7 @@ async function spotifyFetch<T>(
 
   if (!response.ok) {
     const body = await response.text().catch(() => '(no body)')
+    console.error('[spotify] error response body:', body)
     throw new Error(`Spotify API error ${response.status}: ${response.statusText} — ${body}`)
   }
 

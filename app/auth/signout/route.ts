@@ -25,5 +25,12 @@ export async function POST(request: Request) {
 
   await supabase.auth.signOut()
 
+  // Explicitly delete all Supabase auth cookies in case setAll wasn't called
+  cookieStore.getAll().forEach(({ name }) => {
+    if (name.startsWith('sb-')) {
+      response.cookies.delete(name)
+    }
+  })
+
   return response
 }

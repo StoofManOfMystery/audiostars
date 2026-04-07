@@ -17,7 +17,7 @@ export default async function SearchPage({ searchParams }: SearchPageProps) {
   const userAlbumScores: Record<string, number | null> = {}
 
   if (query.length >= 2) {
-    const result = await searchAlbums(query, 24).catch(() => null)
+    const result = await searchAlbums(query, 10).catch(() => null)
     // Keep null on error so the client knows to retry via the API route
     albums = result ? (result.albums?.items ?? []) : null
 
