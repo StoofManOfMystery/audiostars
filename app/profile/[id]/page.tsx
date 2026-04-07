@@ -25,7 +25,7 @@ export default async function ProfilePage({ params, searchParams }: ProfilePageP
   const profileResult = await table<Profile>(supabase, 'profiles')
     .select('*')
     .eq('id', params.id)
-    .single()
+    .maybeSingle()
 
   const profile = profileResult.data as Profile | null
   if (!profile) notFound()

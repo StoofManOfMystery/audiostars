@@ -9,7 +9,7 @@ export function LandingSignIn() {
     await supabase.auth.signInWithOAuth({
       provider: 'spotify',
       options: {
-        redirectTo: "http://127.0.0.1:3000/callback",
+        redirectTo: `${window.location.origin}/auth/callback`,
         scopes: 'user-read-private user-read-email',
       },
     })

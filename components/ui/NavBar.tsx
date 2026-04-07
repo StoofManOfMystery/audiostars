@@ -35,7 +35,7 @@ export function NavBar({ user, profile }: NavBarProps) {
   }
 
   const handleSignOut = async () => {
-    await supabase.auth.signOut()
+    await fetch('/auth/signout', { method: 'POST' })
     window.location.href = '/'
   }
 

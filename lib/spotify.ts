@@ -15,8 +15,16 @@ async function getClientCredentialsToken(): Promise<string> {
     return cachedToken.access_token
   }
 
-  const clientId = process.env.SPOTIFY_CLIENT_ID!
-  const clientSecret = process.env.SPOTIFY_CLIENT_SECRET!
+  const clientId = process.env.SPOTIFY_CLIENT_ID
+  const clientSecret = process.env.SPOTIFY_CLIENT_SECRET
+
+  if (!clientId || !clientSecret) {
+    throw new Error(
+      'Missing SPOTIFY_CLIENT_ID or SPOTIFY_CLIENT_SECRET environment variables. ' +
+      'Copy .env.local.example to .env.local and fill in your Spotify app credentials.'
+    )
+  }
+
   const credentials = Buffer.from(`${clientId}:${clientSecret}`).toString('base64')
 
   const response = await fetch(SPOTIFY_TOKEN_URL, {
@@ -55,14 +63,14 @@ async function spotifyFetch<T>(
       'Content-Type': 'application/json',
       ...options.headers,
     },
-    next: { revalidate: 3600 }, // 1 hour cache
+    next: { revalidate: 3600 },
   })
 
   if (!response.ok) {
     throw new Error(`Spotify API error ${response.status}: ${response.statusText}`)
   }
 
-  return response.json()
+  return response.json() as Promise<T>
 }
 
 export async function searchAlbums(
