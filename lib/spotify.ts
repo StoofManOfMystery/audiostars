@@ -59,7 +59,6 @@ async function spotifyFetch<T>(
     ...options,
     headers: {
       Authorization: `Bearer ${token}`,
-      'Content-Type': 'application/json',
       ...options.headers,
     },
   })
