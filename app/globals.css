@@ -3,12 +3,12 @@
 @tailwind utilities;
 
 :root {
-  --bg: #1A1612;
-  --surface: #252019;
-  --surface-elevated: #2E2820;
-  --border: #3D3530;
-  --text-primary: #F0EAE2;
-  --text-secondary: #A89B8C;
+  --bg: #0C0A09;
+  --surface: #161210;
+  --surface-elevated: #1E1916;
+  --border: #2A2420;
+  --text-primary: #F5EDE3;
+  --text-secondary: #7A6E65;
   --accent: #E8832A;
   --accent-hover: #F09440;
   --accent-muted: rgba(232, 131, 42, 0.13);

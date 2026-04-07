@@ -11,6 +11,7 @@ import { AlbumScoreBadge } from '@/components/ui/AlbumScoreBadge'
 import { ProfileEditSection } from '@/components/profile/ProfileEditSection'
 import { PublicToggle } from '@/components/profile/PublicToggle'
 import { FriendButton } from '@/components/profile/FriendButton'
+import { ProfileAlbumCard } from '@/components/profile/ProfileAlbumCard'
 import type { TrackRating, Profile, Friendship } from '@/types/database'
 
 interface ProfilePageProps {
@@ -32,7 +33,6 @@ export default async function ProfilePage({ params, searchParams }: ProfilePageP
 
   const isOwner = currentUser?.id === params.id
 
-  // Privacy check
   let canView = isOwner || profile.is_public
   if (!canView && currentUser) {
     const friendResult = await table<Friendship>(supabase, 'friendships')
@@ -52,7 +52,6 @@ export default async function ProfilePage({ params, searchParams }: ProfilePageP
     )
   }
 
-  // Friendship status
   let friendshipStatus: 'none' | 'pending' | 'accepted' | 'requested' = 'none'
   if (currentUser && !isOwner) {
     const fResult = await table<Friendship>(supabase, 'friendships')
@@ -68,7 +67,6 @@ export default async function ProfilePage({ params, searchParams }: ProfilePageP
     }
   }
 
-  // All ratings
   const ratingsResult = await table<TrackRating>(supabase, 'track_ratings')
     .select('*')
     .eq('user_id', params.id)
@@ -76,7 +74,6 @@ export default async function ProfilePage({ params, searchParams }: ProfilePageP
 
   const ratings = (ratingsResult.data ?? []) as TrackRating[]
 
-  // Group by album
   const albumRatingsMap: Record<string, TrackRating[]> = {}
   for (const r of ratings) {
     if (!albumRatingsMap[r.spotify_album_id]) albumRatingsMap[r.spotify_album_id] = []
@@ -123,63 +120,71 @@ export default async function ProfilePage({ params, searchParams }: ProfilePageP
   const gridAlbumData = await Promise.all(
     sortedAlbums.slice(0, 20).map(a =>
       getAlbum(a.albumId)
-        .then(album => ({ album, score: a.score, count: a.count }))
+        .then(album => ({ album, score: a.score, count: a.count, albumId: a.albumId }))
         .catch(() => null)
     )
   )
 
   return (
-    <div className="max-w-5xl mx-auto px-4 py-8">
-      {/* Profile Header */}
-      <div className="flex flex-col sm:flex-row items-start gap-6 mb-10">
+    <div className="max-w-4xl mx-auto px-4 py-12">
+
+      {/* ── Header ── */}
+      <div className="flex flex-col sm:flex-row items-start gap-8 mb-14">
+
+        {/* Avatar */}
         <div className="flex-shrink-0">
           {profile.avatar_url ? (
             <Image
               src={profile.avatar_url}
               alt={profile.display_name ?? 'Profile'}
-              width={96}
-              height={96}
-              className="avatar w-24 h-24"
+              width={112}
+              height={112}
+              className="rounded-full object-cover border border-border"
             />
           ) : (
-            <div className="avatar w-24 h-24 bg-accent-muted flex items-center justify-center text-3xl text-accent font-bold font-display">
+            <div className="w-28 h-28 rounded-full bg-surface-elevated border border-border flex items-center justify-center text-4xl text-accent font-display font-bold">
               {(profile.display_name ?? 'U')[0].toUpperCase()}
             </div>
           )}
         </div>
 
+        {/* Info */}
         <div className="flex-1 min-w-0">
-          <div className="flex flex-wrap items-start gap-3 mb-1">
-            <h1 className="font-display text-3xl">{profile.display_name ?? 'Anonymous'}</h1>
+          <p className="text-[10px] uppercase tracking-[0.2em] text-text-secondary mb-1">
+            / Audiostars · Since {new Date(profile.created_at).toLocaleDateString('en-US', { month: 'long', year: 'numeric' })}
+          </p>
+          <h1 className="font-display text-4xl sm:text-5xl text-text-primary leading-none mb-4 break-words">
+            {profile.display_name ?? 'Anonymous'}
+          </h1>
+
+          <div className="flex flex-wrap items-center gap-2 mb-4">
             {isOwner && <PublicToggle isPublic={profile.is_public} />}
             {!isOwner && currentUser && (
               <FriendButton targetId={params.id} currentStatus={friendshipStatus} />
             )}
           </div>
-          <p className="text-text-secondary text-sm mb-3">
-            Member since {new Date(profile.created_at).toLocaleDateString('en-US', { month: 'long', year: 'numeric' })}
-          </p>
 
           {isOwner ? (
             <ProfileEditSection initialBio={profile.bio ?? ''} />
           ) : (
-            profile.bio && <p className="text-base text-text-secondary max-w-xl">{profile.bio}</p>
+            profile.bio && <p className="text-sm text-text-secondary max-w-xl leading-relaxed">{profile.bio}</p>
           )}
 
-          <div className="flex flex-wrap gap-6 mt-4">
-            <Stat label="Albums" value={totalAlbums} />
-            <Stat label="Tracks" value={totalTracks} />
-            <Stat label="Avg Score" value={avgScore !== null ? `${avgScore}` : '—'} />
-            {favDecade && <Stat label="Fav Decade" value={favDecade} />}
+          {/* Stats */}
+          <div className="flex flex-wrap gap-8 mt-6 pt-6 border-t border-border">
+            <StatBlock value={totalAlbums} label="Albums" />
+            <StatBlock value={totalTracks} label="Tracks" />
+            <StatBlock value={avgScore !== null ? avgScore.toString() : '—'} label="Avg Score" accent={avgScore !== null} />
+            {favDecade && <StatBlock value={favDecade} label="Top Decade" />}
           </div>
         </div>
       </div>
 
-      {/* Top Albums Shelf */}
+      {/* ── Top Albums ── */}
       {topAlbumData.length > 0 && (
-        <section className="mb-10">
-          <h2 className="font-display text-2xl mb-4">Top Albums</h2>
-          <div className="flex gap-3 overflow-x-auto scrollbar-hide pb-2">
+        <section className="mb-14">
+          <SectionLabel>Top Albums</SectionLabel>
+          <div className="flex gap-3 overflow-x-auto scrollbar-hide pb-2 -mx-1 px-1">
             {topAlbumData.filter(Boolean).map(item => {
               if (!item) return null
               const artUrl = getBestImage(item.album.images, 200)
@@ -187,7 +192,7 @@ export default async function ProfilePage({ params, searchParams }: ProfilePageP
                 <Link
                   key={item.album.id}
                   href={`/album/${item.album.id}`}
-                  className="group flex-shrink-0 relative w-24 h-24 rounded-card overflow-hidden"
+                  className="group flex-shrink-0 relative w-20 h-20 sm:w-24 sm:h-24 rounded overflow-hidden ring-1 ring-border hover:ring-accent/50 transition-all"
                 >
                   <Image
                     src={artUrl}
@@ -196,7 +201,7 @@ export default async function ProfilePage({ params, searchParams }: ProfilePageP
                     className="object-cover group-hover:scale-105 transition-transform duration-300"
                     sizes="96px"
                   />
-                  <div className="absolute inset-0 bg-black/30 group-hover:bg-black/10 transition-colors" />
+                  <div className="absolute inset-0 bg-black/20 group-hover:bg-black/0 transition-colors" />
                   <div className="absolute bottom-1 right-1">
                     <AlbumScoreBadge score={item.score} size="sm" />
                   </div>
@@ -207,16 +212,20 @@ export default async function ProfilePage({ params, searchParams }: ProfilePageP
         </section>
       )}
 
-      {/* All Ratings Grid */}
+      {/* ── All Ratings ── */}
       <section>
-        <div className="flex items-center justify-between mb-4 flex-wrap gap-3">
-          <h2 className="font-display text-2xl">All Ratings</h2>
+        <div className="flex items-center justify-between mb-6 flex-wrap gap-3">
+          <SectionLabel>All Ratings</SectionLabel>
           <div className="flex gap-1">
             {(['recent', 'highest', 'lowest'] as const).map(s => (
               <Link
                 key={s}
                 href={`/profile/${params.id}?sort=${s}`}
-                className={`btn-ghost text-xs capitalize ${sort === s ? 'text-accent bg-accent-muted' : ''}`}
+                className={`text-[10px] uppercase tracking-widest px-3 py-1.5 rounded transition-colors ${
+                  sort === s
+                    ? 'text-accent bg-accent-muted'
+                    : 'text-text-secondary hover:text-text-primary'
+                }`}
               >
                 {s}
               </Link>
@@ -225,45 +234,25 @@ export default async function ProfilePage({ params, searchParams }: ProfilePageP
         </div>
 
         {gridAlbumData.length === 0 ? (
-          <div className="card p-12 text-center text-text-secondary">
-            <p className="text-lg">No ratings yet</p>
-            <p className="text-sm mt-1">
-              {isOwner ? 'Search for an album to start rating.' : "This user hasn't rated anything yet."}
+          <div className="py-20 text-center">
+            <p className="text-text-secondary text-sm uppercase tracking-widest">
+              {isOwner ? 'No ratings yet — search for an album to start.' : 'No ratings yet.'}
             </p>
           </div>
         ) : (
-          <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-4">
+          <div className="divide-y divide-border border-t border-border">
             {gridAlbumData.filter(Boolean).map(item => {
               if (!item) return null
               const artUrl = getBestImage(item.album.images, 300)
               return (
-                <Link
+                <ProfileAlbumCard
                   key={item.album.id}
-                  href={`/album/${item.album.id}`}
-                  className="group flex flex-col gap-2 card p-3 hover:border-accent/40 transition-all hover:shadow-card-hover"
-                >
-                  <div className="relative aspect-square rounded-input overflow-hidden">
-                    <Image
-                      src={artUrl}
-                      alt={item.album.name}
-                      fill
-                      className="object-cover group-hover:scale-105 transition-transform duration-300"
-                      sizes="(max-width: 640px) 50vw, 20vw"
-                    />
-                    <div className="absolute top-1.5 right-1.5">
-                      <AlbumScoreBadge score={item.score} size="sm" />
-                    </div>
-                  </div>
-                  <div>
-                    <p className="font-display text-sm leading-tight line-clamp-2 group-hover:text-accent transition-colors">
-                      {item.album.name}
-                    </p>
-                    <p className="text-xs text-text-secondary truncate mt-0.5">
-                      {item.album.artists.map(a => a.name).join(', ')}
-                    </p>
-                    <p className="text-xs text-text-secondary">{item.count} tracks rated</p>
-                  </div>
-                </Link>
+                  album={item.album}
+                  score={item.score}
+                  count={item.count}
+                  ratings={albumRatingsMap[item.albumId] ?? []}
+                  artUrl={artUrl}
+                />
               )
             })}
           </div>
@@ -273,11 +262,22 @@ export default async function ProfilePage({ params, searchParams }: ProfilePageP
   )
 }
 
-function Stat({ label, value }: { label: string; value: string | number }) {
+function StatBlock({ value, label, accent = false }: { value: string | number; label: string; accent?: boolean }) {
   return (
-    <div className="flex flex-col gap-0.5">
-      <span className="text-xs text-text-secondary uppercase tracking-wide font-medium">{label}</span>
-      <span className="text-xl font-display font-bold text-text-primary">{value}</span>
+    <div className="flex flex-col gap-1">
+      <span className={`font-display text-3xl font-bold leading-none ${accent ? 'text-accent' : 'text-text-primary'}`}>
+        {value}
+      </span>
+      <span className="text-[10px] uppercase tracking-[0.15em] text-text-secondary">{label}</span>
     </div>
+  )
+}
+
+function SectionLabel({ children }: { children: React.ReactNode }) {
+  return (
+    <p className="text-[10px] uppercase tracking-[0.2em] text-text-secondary mb-4 flex items-center gap-3">
+      <span>/ {children}</span>
+      <span className="flex-1 h-px bg-border" />
+    </p>
   )
 }
