@@ -34,7 +34,6 @@ async function getClientCredentialsToken(): Promise<string> {
       'Content-Type': 'application/x-www-form-urlencoded',
     },
     body: 'grant_type=client_credentials',
-    cache: 'no-store',
   })
 
   if (!response.ok) {
@@ -63,7 +62,6 @@ async function spotifyFetch<T>(
       'Content-Type': 'application/json',
       ...options.headers,
     },
-    next: { revalidate: 3600 },
   })
 
   if (!response.ok) {

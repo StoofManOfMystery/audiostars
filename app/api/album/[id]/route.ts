@@ -5,7 +5,8 @@ export async function GET(_req: Request, { params }: { params: { id: string } })
   try {
     const album = await getAlbum(params.id)
     return NextResponse.json({ album })
-  } catch {
-    return NextResponse.json({ album: null }, { status: 404 })
+  } catch (err) {
+    console.error('[/api/album] Spotify error:', err)
+    return NextResponse.json({ error: String(err), album: null }, { status: 404 })
   }
 }
