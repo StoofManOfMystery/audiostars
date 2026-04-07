@@ -64,7 +64,8 @@ async function spotifyFetch<T>(
   })
 
   if (!response.ok) {
-    throw new Error(`Spotify API error ${response.status}: ${response.statusText}`)
+    const body = await response.text().catch(() => '(no body)')
+    throw new Error(`Spotify API error ${response.status}: ${response.statusText} — ${body}`)
   }
 
   return response.json() as Promise<T>

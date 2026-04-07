@@ -4,8 +4,7 @@ import { cookies } from 'next/headers'
 
 export async function POST(request: Request) {
   const cookieStore = cookies()
-  const requestUrl = new URL(request.url)
-  const response = NextResponse.redirect(new URL('/', requestUrl.origin), { status: 302 })
+  const response = NextResponse.json({ ok: true })
 
   const supabase = createServerClient(
     process.env.NEXT_PUBLIC_SUPABASE_URL!,
