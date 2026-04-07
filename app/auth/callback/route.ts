@@ -1,5 +1,6 @@
 import { NextResponse } from 'next/server'
-import { createClient } from '@/lib/supabase/server'
+import { createServerClient } from '@supabase/ssr'
+import { cookies } from 'next/headers'
 import { table } from '@/lib/supabase/typed'
 import type { Profile } from '@/types/database'
 
@@ -9,7 +10,30 @@ export async function GET(request: Request) {
   const next = requestUrl.searchParams.get('next') ?? '/feed'
 
   if (code) {
-    const supabase = createClient()
+    const cookieStore = cookies()
+    // Build the redirect response first so we can attach session cookies to it
+    const response = NextResponse.redirect(new URL(next, requestUrl.origin))
+
+    const supabase = createServerClient(
+      process.env.NEXT_PUBLIC_SUPABASE_URL!,
+      process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,
+      {
+        cookies: {
+          getAll() {
+            return cookieStore.getAll()
+          },
+          setAll(cookiesToSet) {
+            cookiesToSet.forEach(({ name, value, options }) =>
+              response.cookies.set(name, value, {
+                ...options,
+                maxAge: options.maxAge ?? 60 * 60 * 24 * 365,
+              })
+            )
+          },
+        },
+      }
+    )
+
     const { data, error } = await supabase.auth.exchangeCodeForSession(code)
 
     if (!error && data.user) {
@@ -28,7 +52,7 @@ export async function GET(request: Request) {
         })
       }
 
-      return NextResponse.redirect(new URL(next, requestUrl.origin))
+      return response
     }
   }
 
