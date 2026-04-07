@@ -36,23 +36,34 @@ export function SearchClient({
   const [loading, setLoading] = useState(false)
   const debouncedQuery = useDebounce(query, 400)
 
-  useEffect(() => {
-    if (debouncedQuery === initialQuery) return
-    if (debouncedQuery.length < 2) {
+  function doSearch(q: string) {
+    if (q.length < 2) {
       setAlbums(null)
       router.replace('/search', { scroll: false })
       return
     }
-
     setLoading(true)
-    fetch(`/api/search?q=${encodeURIComponent(debouncedQuery)}`)
+    fetch(`/api/search?q=${encodeURIComponent(q)}`)
       .then(r => r.json())
       .then(data => {
         setAlbums(data.albums ?? [])
-        router.replace(`/search?q=${encodeURIComponent(debouncedQuery)}`, { scroll: false })
+        router.replace(`/search?q=${encodeURIComponent(q)}`, { scroll: false })
       })
       .catch(() => setAlbums([]))
       .finally(() => setLoading(false))
+  }
+
+  // On first mount, retry via API if the server didn't return results
+  useEffect(() => {
+    if (initialAlbums === null && initialQuery.length >= 2) {
+      doSearch(initialQuery)
+    }
+  }, [])
+
+  useEffect(() => {
+    // Skip if this is the initial server-rendered query AND we already have results
+    if (debouncedQuery === initialQuery && initialAlbums !== null) return
+    doSearch(debouncedQuery)
   }, [debouncedQuery])
 
   return (

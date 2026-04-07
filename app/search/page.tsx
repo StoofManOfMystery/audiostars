@@ -18,7 +18,8 @@ export default async function SearchPage({ searchParams }: SearchPageProps) {
 
   if (query.length >= 2) {
     const result = await searchAlbums(query, 24).catch(() => null)
-    albums = result?.albums?.items ?? []
+    // Keep null on error so the client knows to retry via the API route
+    albums = result ? (result.albums?.items ?? []) : null
 
     if (user && albums && albums.length > 0) {
       const albumIds = albums.map(a => a.id)
