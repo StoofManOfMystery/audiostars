@@ -36,24 +36,37 @@ export async function GET(request: Request) {
 
     const { data, error } = await supabase.auth.exchangeCodeForSession(code)
 
-    if (!error && data.user) {
-      const existing = await table<Profile>(supabase, 'profiles')
-        .select('id')
-        .eq('id', data.user.id)
-        .maybeSingle()
+    if (error) {
+      console.error('[auth/callback] exchangeCodeForSession error:', error.message, error)
+      return NextResponse.redirect(new URL(`/?error=auth&msg=${encodeURIComponent(error.message)}`, requestUrl.origin))
+    }
 
-      if (!existing.data) {
-        const meta = data.user.user_metadata
-        await table<Profile>(supabase, 'profiles').insert({
-          id: data.user.id,
-          spotify_id: meta.provider_id ?? null,
-          display_name: meta.full_name ?? meta.name ?? null,
-          avatar_url: meta.avatar_url ?? meta.picture ?? null,
-        })
+    if (data.user) {
+      // Create profile if this is a new user
+      try {
+        const existing = await table<Profile>(supabase, 'profiles')
+          .select('id')
+          .eq('id', data.user.id)
+          .maybeSingle()
+
+        if (!existing.data) {
+          const meta = data.user.user_metadata
+          const { error: insertError } = await table<Profile>(supabase, 'profiles').insert({
+            id: data.user.id,
+            spotify_id: meta.provider_id ?? null,
+            display_name: meta.full_name ?? meta.name ?? null,
+            avatar_url: meta.avatar_url ?? meta.picture ?? null,
+          })
+          if (insertError) console.error('[auth/callback] profile insert error:', insertError.message)
+        }
+      } catch (e) {
+        console.error('[auth/callback] profile creation failed:', e)
       }
 
       return response
     }
+
+    console.error('[auth/callback] no user after code exchange')
   }
 
   return NextResponse.redirect(new URL('/?error=auth', requestUrl.origin))
