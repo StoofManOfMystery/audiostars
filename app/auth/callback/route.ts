@@ -9,6 +9,16 @@ export async function GET(request: Request) {
   const code = requestUrl.searchParams.get('code')
   const next = requestUrl.searchParams.get('next') ?? '/feed'
 
+  // Log everything Supabase is sending back
+  console.log('[auth/callback] params:', Object.fromEntries(requestUrl.searchParams))
+
+  const supabaseError = requestUrl.searchParams.get('error')
+  const supabaseErrorDesc = requestUrl.searchParams.get('error_description')
+  if (supabaseError) {
+    console.error('[auth/callback] Supabase error:', supabaseError, supabaseErrorDesc)
+    return NextResponse.redirect(new URL(`/?error=${supabaseError}&msg=${encodeURIComponent(supabaseErrorDesc ?? '')}`, requestUrl.origin))
+  }
+
   if (code) {
     const cookieStore = cookies()
     // Build the redirect response first so we can attach session cookies to it
