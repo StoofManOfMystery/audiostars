@@ -18,7 +18,11 @@ export async function updateSession(request: NextRequest) {
           )
           supabaseResponse = NextResponse.next({ request })
           cookiesToSet.forEach(({ name, value, options }) =>
-            supabaseResponse.cookies.set(name, value, options)
+            supabaseResponse.cookies.set(name, value, {
+              ...options,
+              // Default to 1 year so auth cookies survive browser restarts
+              maxAge: options.maxAge ?? 60 * 60 * 24 * 365,
+            })
           )
         },
       },
