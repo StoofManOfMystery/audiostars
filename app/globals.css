@@ -3,25 +3,166 @@
 @tailwind utilities;
 
 :root {
-  --background: #ffffff;
-  --foreground: #171717;
+  --bg: #1A1612;
+  --surface: #252019;
+  --surface-elevated: #2E2820;
+  --border: #3D3530;
+  --text-primary: #F0EAE2;
+  --text-secondary: #A89B8C;
+  --accent: #E8832A;
+  --accent-hover: #F09440;
+  --accent-muted: rgba(232, 131, 42, 0.13);
+  --destructive: #C0392B;
+  --success: #7BAF6E;
 }
 
-@media (prefers-color-scheme: dark) {
-  :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
-  }
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+}
+
+html {
+  scroll-behavior: smooth;
 }
 
 body {
-  color: var(--foreground);
-  background: var(--background);
-  font-family: Arial, Helvetica, sans-serif;
+  background-color: var(--bg);
+  color: var(--text-primary);
+  font-family: var(--font-inter), system-ui, sans-serif;
+  font-size: 15px;
+  line-height: 1.6;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+/* Typography */
+h1, h2, h3, h4, h5, h6 {
+  font-family: var(--font-playfair), Georgia, serif;
+  color: var(--text-primary);
+  line-height: 1.2;
+}
+
+/* Scrollbar */
+::-webkit-scrollbar {
+  width: 6px;
+  height: 6px;
+}
+::-webkit-scrollbar-track {
+  background: var(--surface);
+}
+::-webkit-scrollbar-thumb {
+  background: var(--border);
+  border-radius: 999px;
+}
+::-webkit-scrollbar-thumb:hover {
+  background: var(--text-secondary);
+}
+
+/* Selection */
+::selection {
+  background: var(--accent-muted);
+  color: var(--accent);
+}
+
+@layer components {
+  /* Cards */
+  .card {
+    @apply bg-surface rounded-card shadow-card border border-border;
+  }
+  .card-elevated {
+    @apply bg-surface-elevated rounded-card shadow-card border border-border;
+  }
+
+  /* Buttons */
+  .btn-primary {
+    @apply bg-accent text-bg font-body font-semibold px-5 py-2.5 rounded-btn
+           hover:bg-accent-hover transition-colors duration-150
+           focus:outline-none focus:ring-2 focus:ring-accent/50
+           disabled:opacity-50 disabled:cursor-not-allowed;
+  }
+  .btn-secondary {
+    @apply bg-surface-elevated text-text-primary font-body font-medium px-5 py-2.5 rounded-btn
+           border border-border hover:border-accent hover:text-accent transition-colors duration-150
+           focus:outline-none focus:ring-2 focus:ring-accent/30
+           disabled:opacity-50 disabled:cursor-not-allowed;
+  }
+  .btn-ghost {
+    @apply text-text-secondary font-body font-medium px-3 py-2 rounded-btn
+           hover:text-text-primary hover:bg-surface-elevated transition-colors duration-150
+           focus:outline-none;
+  }
+  .btn-danger {
+    @apply bg-destructive/10 text-destructive font-body font-medium px-4 py-2 rounded-btn
+           border border-destructive/30 hover:bg-destructive/20 transition-colors duration-150;
+  }
+
+  /* Inputs */
+  .input {
+    @apply bg-surface-elevated border border-border rounded-input px-3 py-2.5
+           text-text-primary placeholder:text-text-secondary
+           focus:outline-none focus:border-accent focus:ring-1 focus:ring-accent/30
+           transition-colors duration-150 w-full text-base;
+  }
+  .textarea {
+    @apply input resize-none;
+  }
+
+  /* Score badge */
+  .score-badge {
+    @apply inline-flex items-center justify-center bg-accent-muted text-accent
+           font-body font-bold rounded-pill leading-none;
+  }
+  .score-badge-sm {
+    @apply score-badge text-xs px-2 py-1;
+  }
+  .score-badge-md {
+    @apply score-badge text-sm px-2.5 py-1;
+  }
+  .score-badge-lg {
+    @apply score-badge text-xl px-4 py-2;
+  }
+
+  /* Nav link */
+  .nav-link {
+    @apply text-text-secondary hover:text-text-primary transition-colors duration-150 text-sm font-medium;
+  }
+  .nav-link-active {
+    @apply text-accent;
+  }
+
+  /* Pill/tag */
+  .pill {
+    @apply inline-flex items-center px-2.5 py-0.5 rounded-pill text-xs font-medium
+           bg-surface-elevated border border-border text-text-secondary;
+  }
+
+  /* Divider */
+  .divider {
+    @apply border-t border-border;
+  }
+
+  /* Avatar */
+  .avatar {
+    @apply rounded-full object-cover bg-surface-elevated border border-border flex-shrink-0;
+  }
 }
 
 @layer utilities {
   .text-balance {
     text-wrap: balance;
+  }
+  .font-display {
+    font-family: var(--font-playfair), Georgia, serif;
+  }
+  .font-body {
+    font-family: var(--font-inter), system-ui, sans-serif;
+  }
+  .scrollbar-hide {
+    -ms-overflow-style: none;
+    scrollbar-width: none;
+  }
+  .scrollbar-hide::-webkit-scrollbar {
+    display: none;
   }
 }
