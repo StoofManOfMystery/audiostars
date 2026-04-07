@@ -4,6 +4,7 @@ import './globals.css'
 import { NavBar } from '@/components/ui/NavBar'
 import { getUser } from '@/lib/supabase/server'
 import { getProfile } from '@/lib/supabase/server'
+import { Analytics } from '@vercel/analytics/next'
 
 const inter = Inter({
   subsets: ['latin'],
@@ -36,6 +37,7 @@ export default async function RootLayout({
       <body className="bg-bg text-text-primary font-body antialiased min-h-screen">
         <NavBar user={user} profile={profile} />
         <main className="min-h-[calc(100vh-64px)]">{children}</main>
+        <Analytics />
       </body>
     </html>
   )
