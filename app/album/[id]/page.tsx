@@ -11,6 +11,7 @@ import { TrackList } from '@/components/album/TrackList'
 import { AlbumReviewSection } from '@/components/album/AlbumReviewSection'
 import { FriendsScoreRow } from '@/components/album/FriendsScoreRow'
 import { ShareCardButton } from '@/components/share/ShareCardButton'
+import { ClearRatingsButton } from '@/components/album/ClearRatingsButton'
 import type { TrackRating, AlbumReview, Friendship } from '@/types/database'
 
 interface AlbumPageProps {
@@ -136,6 +137,9 @@ export default async function AlbumPage({ params }: AlbumPageProps) {
                     {myRatings.length} of {album.total_tracks} tracks
                   </span>
                 </div>
+                {myRatings.length > 0 && (
+                  <ClearRatingsButton spotifyAlbumId={params.id} />
+                )}
               </div>
 
               {friendsRatings.length > 0 && (

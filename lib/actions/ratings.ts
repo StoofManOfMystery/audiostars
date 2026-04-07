@@ -72,6 +72,23 @@ export async function upsertAlbumReview(spotifyAlbumId: string, body: string) {
   revalidatePath(`/album/${spotifyAlbumId}`)
 }
 
+export async function deleteAllAlbumRatings(spotifyAlbumId: string) {
+  const supabase = createClient()
+  const { data: { user } } = await supabase.auth.getUser()
+
+  if (!user) throw new Error('Not authenticated')
+
+  const { error } = await table<TrackRating>(supabase, 'track_ratings')
+    .delete()
+    .eq('user_id', user.id)
+    .eq('spotify_album_id', spotifyAlbumId)
+
+  if (error) throw new Error(error.message)
+
+  revalidatePath(`/album/${spotifyAlbumId}`)
+  revalidatePath('/feed')
+}
+
 export async function getMyAlbumRatings(spotifyAlbumId: string) {
   const supabase = createClient()
   const { data: { user } } = await supabase.auth.getUser()
