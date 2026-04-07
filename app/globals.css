@@ -3,15 +3,15 @@
 @tailwind utilities;
 
 :root {
-  --bg: #0C0A09;
-  --surface: #161210;
-  --surface-elevated: #1E1916;
-  --border: #2A2420;
-  --text-primary: #F5EDE3;
-  --text-secondary: #7A6E65;
+  --bg: #080808;
+  --surface: #111111;
+  --surface-elevated: #1A1A1A;
+  --border: #252525;
+  --text-primary: #F0F0F0;
+  --text-secondary: #555555;
   --accent: #E8832A;
   --accent-hover: #F09440;
-  --accent-muted: rgba(232, 131, 42, 0.13);
+  --accent-muted: rgba(232, 131, 42, 0.12);
   --destructive: #C0392B;
   --success: #7BAF6E;
 }
@@ -36,28 +36,19 @@ body {
   -moz-osx-font-smoothing: grayscale;
 }
 
-/* Typography */
+/* Headings use Bebas Neue */
 h1, h2, h3, h4, h5, h6 {
-  font-family: var(--font-playfair), Georgia, serif;
+  font-family: var(--font-bebas), Impact, sans-serif;
   color: var(--text-primary);
-  line-height: 1.2;
+  line-height: 1.0;
+  letter-spacing: 0.03em;
 }
 
 /* Scrollbar */
-::-webkit-scrollbar {
-  width: 6px;
-  height: 6px;
-}
-::-webkit-scrollbar-track {
-  background: var(--surface);
-}
-::-webkit-scrollbar-thumb {
-  background: var(--border);
-  border-radius: 999px;
-}
-::-webkit-scrollbar-thumb:hover {
-  background: var(--text-secondary);
-}
+::-webkit-scrollbar { width: 4px; height: 4px; }
+::-webkit-scrollbar-track { background: var(--bg); }
+::-webkit-scrollbar-thumb { background: var(--border); }
+::-webkit-scrollbar-thumb:hover { background: var(--text-secondary); }
 
 /* Selection */
 ::selection {
@@ -66,43 +57,48 @@ h1, h2, h3, h4, h5, h6 {
 }
 
 @layer components {
-  /* Cards */
+  /* Cards — sharp, minimal */
   .card {
-    @apply bg-surface rounded-card shadow-card border border-border;
+    @apply bg-surface border border-border rounded-card;
   }
   .card-elevated {
-    @apply bg-surface-elevated rounded-card shadow-card border border-border;
+    @apply bg-surface-elevated border border-border rounded-card;
   }
 
-  /* Buttons */
+  /* Buttons — uppercase, sharp */
   .btn-primary {
-    @apply bg-accent text-bg font-body font-semibold px-5 py-2.5 rounded-btn
+    @apply bg-accent text-bg font-body font-bold px-6 py-2.5
+           text-xs uppercase tracking-widest
            hover:bg-accent-hover transition-colors duration-150
-           focus:outline-none focus:ring-2 focus:ring-accent/50
-           disabled:opacity-50 disabled:cursor-not-allowed;
+           focus:outline-none focus:ring-1 focus:ring-accent/50
+           disabled:opacity-40 disabled:cursor-not-allowed;
   }
   .btn-secondary {
-    @apply bg-surface-elevated text-text-primary font-body font-medium px-5 py-2.5 rounded-btn
-           border border-border hover:border-accent hover:text-accent transition-colors duration-150
-           focus:outline-none focus:ring-2 focus:ring-accent/30
-           disabled:opacity-50 disabled:cursor-not-allowed;
+    @apply bg-transparent text-text-primary font-body font-medium px-5 py-2.5
+           text-xs uppercase tracking-widest
+           border border-border hover:border-accent hover:text-accent
+           transition-colors duration-150
+           focus:outline-none
+           disabled:opacity-40 disabled:cursor-not-allowed;
   }
   .btn-ghost {
-    @apply text-text-secondary font-body font-medium px-3 py-2 rounded-btn
-           hover:text-text-primary hover:bg-surface-elevated transition-colors duration-150
+    @apply text-text-secondary font-body font-medium px-3 py-2
+           text-xs uppercase tracking-wider
+           hover:text-text-primary transition-colors duration-150
            focus:outline-none;
   }
   .btn-danger {
-    @apply bg-destructive/10 text-destructive font-body font-medium px-4 py-2 rounded-btn
-           border border-destructive/30 hover:bg-destructive/20 transition-colors duration-150;
+    @apply bg-transparent text-destructive font-body font-medium px-4 py-2
+           text-xs uppercase tracking-wider
+           border border-destructive/30 hover:bg-destructive/10 transition-colors duration-150;
   }
 
   /* Inputs */
   .input {
     @apply bg-surface-elevated border border-border rounded-input px-3 py-2.5
-           text-text-primary placeholder:text-text-secondary
-           focus:outline-none focus:border-accent focus:ring-1 focus:ring-accent/30
-           transition-colors duration-150 w-full text-base;
+           text-text-primary placeholder:text-text-secondary/50
+           focus:outline-none focus:border-accent
+           transition-colors duration-150 w-full text-sm;
   }
   .textarea {
     @apply input resize-none;
@@ -110,22 +106,23 @@ h1, h2, h3, h4, h5, h6 {
 
   /* Score badge */
   .score-badge {
-    @apply inline-flex items-center justify-center bg-accent-muted text-accent
-           font-body font-bold rounded-pill leading-none;
+    @apply inline-flex items-center justify-center
+           font-body font-bold leading-none;
   }
   .score-badge-sm {
-    @apply score-badge text-xs px-2 py-1;
+    @apply score-badge text-xs px-1.5 py-0.5 bg-accent text-bg;
   }
   .score-badge-md {
-    @apply score-badge text-sm px-2.5 py-1;
+    @apply score-badge text-sm px-2 py-1 bg-accent text-bg;
   }
   .score-badge-lg {
-    @apply score-badge text-xl px-4 py-2;
+    @apply score-badge text-2xl px-4 py-2 bg-accent text-bg font-display;
   }
 
   /* Nav link */
   .nav-link {
-    @apply text-text-secondary hover:text-text-primary transition-colors duration-150 text-sm font-medium;
+    @apply text-text-secondary hover:text-text-primary transition-colors duration-150
+           text-[11px] uppercase tracking-widest font-medium;
   }
   .nav-link-active {
     @apply text-accent;
@@ -133,8 +130,9 @@ h1, h2, h3, h4, h5, h6 {
 
   /* Pill/tag */
   .pill {
-    @apply inline-flex items-center px-2.5 py-0.5 rounded-pill text-xs font-medium
-           bg-surface-elevated border border-border text-text-secondary;
+    @apply inline-flex items-center px-2 py-0.5
+           text-[10px] uppercase tracking-widest font-medium
+           border border-border text-text-secondary;
   }
 
   /* Divider */
@@ -144,16 +142,15 @@ h1, h2, h3, h4, h5, h6 {
 
   /* Avatar */
   .avatar {
-    @apply rounded-full object-cover bg-surface-elevated border border-border flex-shrink-0;
+    @apply object-cover bg-surface-elevated border border-border flex-shrink-0;
   }
 }
 
 @layer utilities {
-  .text-balance {
-    text-wrap: balance;
-  }
+  .text-balance { text-wrap: balance; }
   .font-display {
-    font-family: var(--font-playfair), Georgia, serif;
+    font-family: var(--font-bebas), Impact, sans-serif;
+    letter-spacing: 0.03em;
   }
   .font-body {
     font-family: var(--font-inter), system-ui, sans-serif;
@@ -162,7 +159,5 @@ h1, h2, h3, h4, h5, h6 {
     -ms-overflow-style: none;
     scrollbar-width: none;
   }
-  .scrollbar-hide::-webkit-scrollbar {
-    display: none;
-  }
+  .scrollbar-hide::-webkit-scrollbar { display: none; }
 }

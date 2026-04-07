@@ -41,26 +41,31 @@ export function NavBar({ user, profile }: NavBarProps) {
   }
 
   return (
-    <header className="sticky top-0 z-50 bg-surface border-b border-border shadow-card">
-      <div className="max-w-6xl mx-auto px-4 h-16 flex items-center justify-between gap-4">
+    <header className="sticky top-0 z-50 bg-bg border-b border-border">
+      <div className="max-w-6xl mx-auto px-4 h-14 flex items-center justify-between gap-6">
         {/* Logo */}
-        <Link href={user ? '/feed' : '/'} className="flex items-center gap-2 flex-shrink-0">
-          <span className="font-display text-xl text-accent font-bold tracking-tight">
+        <Link href={user ? '/feed' : '/'} className="flex items-center gap-3">
+          <span className="font-display text-2xl text-accent tracking-wider leading-none">
             Audiostars
           </span>
+          {user && (
+            <span className="hidden sm:block text-[9px] uppercase tracking-[0.2em] text-text-secondary border-l border-border pl-3">
+              / Your Taste
+            </span>
+          )}
         </Link>
 
-        {/* Nav links — authenticated only */}
+        {/* Nav links */}
         {user && (
-          <nav className="hidden md:flex items-center gap-1">
+          <nav className="hidden md:flex items-center gap-6">
             {navLinks.map(link => (
               <Link
                 key={link.href}
                 href={link.href}
-                className={`nav-link px-3 py-2 rounded-btn transition-colors ${
+                className={`text-[11px] uppercase tracking-widest font-medium transition-colors ${
                   pathname.startsWith(link.href)
-                    ? 'text-accent bg-accent-muted'
-                    : 'hover:text-text-primary hover:bg-surface-elevated'
+                    ? 'text-accent'
+                    : 'text-text-secondary hover:text-text-primary'
                 }`}
               >
                 {link.label}
@@ -70,39 +75,40 @@ export function NavBar({ user, profile }: NavBarProps) {
         )}
 
         {/* Right side */}
-        <div className="flex items-center gap-2">
+        <div className="flex items-center gap-4">
           {user ? (
             <>
               <NotificationBell userId={user.id} />
-
               <Link
                 href={`/profile/${user.id}`}
-                className="flex items-center gap-2 hover:opacity-80 transition-opacity"
+                className="flex items-center gap-2 hover:opacity-70 transition-opacity"
               >
                 {profile?.avatar_url ? (
                   <Image
                     src={profile.avatar_url}
                     alt={profile.display_name ?? 'Profile'}
-                    width={32}
-                    height={32}
-                    className="avatar w-8 h-8"
+                    width={28}
+                    height={28}
+                    className="rounded-full object-cover border border-border"
                   />
                 ) : (
-                  <div className="avatar w-8 h-8 bg-accent-muted flex items-center justify-center text-accent text-sm font-bold">
+                  <div className="w-7 h-7 rounded-full bg-surface-elevated border border-border flex items-center justify-center text-accent text-xs font-bold font-display">
                     {(profile?.display_name ?? 'U')[0].toUpperCase()}
                   </div>
                 )}
-                <span className="hidden md:block text-sm text-text-secondary truncate max-w-[120px]">
+                <span className="hidden md:block text-[11px] uppercase tracking-widest text-text-secondary truncate max-w-[100px]">
                   {profile?.display_name ?? 'Profile'}
                 </span>
               </Link>
-
-              <button onClick={handleSignOut} className="btn-ghost text-xs">
-                Sign out
+              <button
+                onClick={handleSignOut}
+                className="text-[11px] uppercase tracking-widest text-text-secondary hover:text-text-primary transition-colors"
+              >
+                Out
               </button>
             </>
           ) : (
-            <button onClick={handleSignIn} className="btn-primary text-sm">
+            <button onClick={handleSignIn} className="btn-primary">
               Sign in with Spotify
             </button>
           )}
@@ -116,9 +122,9 @@ export function NavBar({ user, profile }: NavBarProps) {
             <Link
               key={link.href}
               href={link.href}
-              className={`flex-1 text-center py-2.5 text-xs font-medium transition-colors ${
+              className={`flex-1 text-center py-2.5 text-[10px] uppercase tracking-widest font-medium transition-colors ${
                 pathname.startsWith(link.href)
-                  ? 'text-accent bg-accent-muted'
+                  ? 'text-accent border-t border-accent -mt-px'
                   : 'text-text-secondary hover:text-text-primary'
               }`}
             >

@@ -1,5 +1,5 @@
 import type { Metadata } from 'next'
-import { Inter, Playfair_Display } from 'next/font/google'
+import { Inter, Bebas_Neue } from 'next/font/google'
 import './globals.css'
 import { NavBar } from '@/components/ui/NavBar'
 import { getUser } from '@/lib/supabase/server'
@@ -11,9 +11,10 @@ const inter = Inter({
   display: 'swap',
 })
 
-const playfair = Playfair_Display({
+const bebas = Bebas_Neue({
   subsets: ['latin'],
-  variable: '--font-playfair',
+  weight: '400',
+  variable: '--font-bebas',
   display: 'swap',
 })
 
@@ -32,10 +33,10 @@ export default async function RootLayout({
   const profile = user ? await getProfile(user.id) : null
 
   return (
-    <html lang="en" className={`${inter.variable} ${playfair.variable}`}>
+    <html lang="en" className={`${inter.variable} ${bebas.variable}`}>
       <body className="bg-bg text-text-primary font-body antialiased min-h-screen">
         <NavBar user={user} profile={profile} />
-        <main className="min-h-[calc(100vh-64px)]">{children}</main>
+        <main className="min-h-[calc(100vh-56px)]">{children}</main>
       </body>
     </html>
   )
